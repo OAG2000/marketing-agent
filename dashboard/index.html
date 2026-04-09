@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a26;
+            --bg-card-hover: #22222f;
+            --border: #2a2a3a;
+            --border-light: #333348;
+            --text-primary: #e8e8f0;
+            --text-secondary: #8888a0;
+            --text-muted: #555568;
+            --accent-red: #ff4d6a;
+            --accent-red-bg: rgba(255, 77, 106, 0.08);
+            --accent-red-border: rgba(255, 77, 106, 0.25);
+            --accent-green: #34d399;
+            --accent-green-bg: rgba(52, 211, 153, 0.08);
+            --accent-green-border: rgba(52, 211, 153, 0.25);
+            --accent-yellow: #fbbf24;
+            --accent-yellow-bg: rgba(251, 191, 36, 0.08);
+            --accent-blue: #60a5fa;
+            --accent-blue-bg: rgba(96, 165, 250, 0.08);
+            --accent-blue-border: rgba(96, 165, 250, 0.25);
+            --accent-purple: #a78bfa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Top bar ────────────────────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .topbar-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 8px;
+        }
+
+        .date-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .date-select:hover { border-color: var(--border-light); }
+        .date-select:focus { border-color: var(--accent-blue); }
+
+        /* ── Main layout ────────────────────────────── */
+        .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+        /* ── Overview cards ─────────────────────────── */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .stat-card:hover { border-color: var(--border-light); }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .stat-value.red { color: var(--accent-red); }
+        .stat-value.green { color: var(--accent-green); }
+        .stat-value.blue { color: var(--accent-blue); }
+        .stat-value.yellow { color: var(--accent-yellow); }
+
+        /* ── Section header ─────────────────────────── */
+        .section-header {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── Campaign anomaly cards ─────────────────── */
+        .campaign-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .campaign-card:hover { border-color: var(--border-light); }
+
+        .campaign-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 20px 24px;
+            cursor: pointer;
+        }
+
+        .campaign-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: -0.2px;
+        }
+
+        .campaign-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .severity-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .severity-negative {
+            background: var(--accent-red-bg);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red-border);
+        }
+
+        .severity-positive {
+            background: var(--accent-green-bg);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green-border);
+        }
+
+        .severity-neutral {
+            background: var(--accent-yellow-bg);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+        }
+
+        /* ── Expanded content ───────────────────────── */
+        .campaign-body {
+            display: none;
+            padding: 0 24px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .campaign-card.expanded .campaign-body { display: block; }
+
+        .anomaly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .anomaly-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .anomaly-item.negative { border-left: 3px solid var(--accent-red); }
+        .anomaly-item.positive { border-left: 3px solid var(--accent-green); }
+
+        .anomaly-metric {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .anomaly-metric.negative { color: var(--accent-red); }
+        .anomaly-metric.positive { color: var(--accent-green); }
+
+        .anomaly-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 3px 0;
+            color: var(--text-secondary);
+        }
+
+        .anomaly-row span:last-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .z-score {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .z-score.negative { color: var(--accent-red); }
+        .z-score.positive { color: var(--accent-green); }
+
+        .pct-change {
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .pct-change.up { color: var(--accent-red); }
+        .pct-change.down { color: var(--accent-green); }
+
+        /* ── Trend sparkline ────────────────────────── */
+        .trend-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .trend-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .trend-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .trend-label {
+            width: 200px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .trend-values {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .trend-dot {
+            width: 36px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .trend-dot.current {
+            background: var(--accent-blue-bg);
+            color: var(--accent-blue);
+            font-weight: 600;
+            border: 1px solid var(--accent-blue-border);
+        }
+
+        .trend-arrow { color: var(--text-muted); font-size: 10px; }
+
+        /* ── Cross campaign ─────────────────────────── */
+        .cross-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .cross-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .cross-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            width: 200px;
+        }
+
+        .cross-indicator {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .cross-indicator.isolated {
+            background: var(--accent-red-bg);
+            color: var(--accent-red);
+        }
+
+        .cross-indicator.market-wide {
+            background: var(--accent-yellow-bg);
+            color: var(--accent-yellow);
+        }
+
+        /* ── Adset table ────────────────────────────── */
+        .adset-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .adset-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .adset-table th {
+            text-align: left;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .adset-table td {
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+
+        /* ── AI Analysis ────────────────────────────── */
+        .analysis-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .analyze-btn:hover { opacity: 0.85; }
+        .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .analysis-content {
+            margin-top: 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--accent-blue-border);
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+        }
+
+        .analysis-content h2,
+        .analysis-content strong {
+            color: var(--text-primary);
+        }
+
+        /* ── Loading ────────────────────────────────── */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 32px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-title { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+
+        /* ── Responsive ─────────────────────────────── */
+        @media (max-width: 900px) {
+            .overview-grid { grid-template-columns: repeat(2, 1fr); }
+            .main { padding: 20px 16px; }
+            .topbar { padding: 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">⚡</div>
+        <span class="topbar-title">Anomaly Agent</span>
+        <span class="topbar-subtitle">Performance Marketing Intelligence</span>
+    </div>
+    <select id="datePicker" class="date-select"></select>
+</div>
+
+<div class="main">
+    <div class="overview-grid" id="overviewGrid">
+        <div class="stat-card"><div class="stat-label">Loading...</div><div class="stat-value">—</div></div>
+    </div>
+
+    <div class="section-header">Campaign Anomalies</div>
+    <div id="anomalyList">
+        <div class="loading"><div class="spinner"></div>Detecting anomalies...</div>
+    </div>
+</div>
+
+<script>
+const API = "";
+
+// ── State ──────────────────────────────────────────────
+let currentDate = null;
+
+// ── Init ───────────────────────────────────────────────
+async function init() {
+    const res = await fetch(`${API}/api/dates`);
+    const data = await res.json();
+    const picker = document.getElementById("datePicker");
+
+    // Populate date picker, latest first
+    const dates = data.dates.reverse();
+    dates.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d;
+        picker.appendChild(opt);
+    });
+
+    picker.addEventListener("change", () => loadDate(picker.value));
+
+    // Load latest date
+    if (dates.length > 0) loadDate(dates[0]);
+}
+
+async function loadDate(date) {
+    currentDate = date;
+    document.getElementById("datePicker").value = date;
+
+    // Load overview + anomalies in parallel
+    loadOverview(date);
+    loadAnomalies(date);
+}
+
+// ── Overview cards ─────────────────────────────────────
+async function loadOverview(date) {
+    const res = await fetch(`${API}/api/overview?date=${date}`);
+    const d = await res.json();
+
+    document.getElementById("overviewGrid").innerHTML = `
+        <div class="stat-card">
+            <div class="stat-label">Date</div>
+            <div class="stat-value" style="font-size:20px;color:var(--text-secondary)">${d.date}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Campaigns</div>
+            <div class="stat-value blue">${d.total_campaigns}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Anomalies</div>
+            <div class="stat-value yellow">${d.total_anomalies}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Needs Attention</div>
+            <div class="stat-value red">${d.negative_anomalies}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Positive Signals</div>
+            <div class="stat-value green">${d.positive_anomalies}</div>
+        </div>
+    `;
+}
+
+// ── Anomaly list ───────────────────────────────────────
+async function loadAnomalies(date) {
+    const container = document.getElementById("anomalyList");
+    container.innerHTML = '<div class="loading"><div class="spinner"></div>Detecting anomalies...</div>';
+
+    const res = await fetch(`${API}/api/anomalies?date=${date}`);
+    const data = await res.json();
+
+    if (data.campaigns.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <div class="empty-title">All Clear</div>
+                <div>No anomalies detected for ${date}. All campaigns performing within normal range.</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = data.campaigns.map((c, idx) => renderCampaignCard(c, idx)).join("");
+}
+
+function renderCampaignCard(c, idx) {
+    const camp = c.campaign;
+    const negCount = c.anomalies.filter(a => a.severity === "negative").length;
+    const posCount = c.anomalies.filter(a => a.severity === "positive").length;
+    const worstZ = Math.max(...c.anomalies.map(a => Math.abs(a.z_score)));
+
+    const neutralCount = c.anomalies.length - negCount - posCount;
+    const severityClass = negCount > 0 ? "negative" : posCount > 0 ? "positive" : "neutral";
+    const severityLabel = negCount > 0 ? `${negCount} negative` : posCount > 0 ? `${posCount} positive` : `${neutralCount} neutral`;
+
+    return `
+    <div class="campaign-card" id="card-${idx}">
+        <div class="campaign-header" onclick="toggleCard(${idx})">
+            <div>
+                <div class="campaign-name">${camp.campaign_name}</div>
+                <div class="campaign-meta">
+                    <span class="meta-tag">${camp.objective}</span>
+                    <span class="meta-tag">${camp.geos.join(", ")}</span>
+                    <span class="meta-tag">${camp.platforms.join(", ")}</span>
+                    <span class="meta-tag">₹${camp.total_daily_budget.toLocaleString()}/day</span>
+                    <span class="meta-tag">${camp.num_adsets} adsets</span>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="severity-badge severity-${severityClass}">${severityLabel}</span>
+                <span class="z-score ${severityClass}" title="Worst z-score">z=${worstZ.toFixed(1)}</span>
+            </div>
+        </div>
+
+        <div class="campaign-body">
+            <!-- Anomaly metrics -->
+            <div class="anomaly-grid">
+                ${c.anomalies.map(a => renderAnomaly(a)).join("")}
+            </div>
+
+            <!-- Trends -->
+            <div class="trend-section">
+                <div class="trend-title">📈 Recent Trends (last 5 days)</div>
+                ${Object.entries(c.trends).map(([metric, vals]) => renderTrend(metric, vals)).join("")}
+            </div>
+
+            <!-- Cross-campaign check -->
+            <div class="cross-section">
+                <div class="trend-title">🌐 Cross-Campaign Check</div>
+                ${Object.entries(c.cross_campaign).map(([metric, check]) => renderCross(metric, check)).join("")}
+            </div>
+
+            <!-- Adset table -->
+            <div class="adset-section">
+                <div class="trend-title">📦 Adset Structure</div>
+                <table class="adset-table">
+                    <thead><tr><th>Adset</th><th>Geo</th><th>Platform</th><th>Gender</th><th>Budget</th></tr></thead>
+                    <tbody>
+                        ${camp.adsets.map(a => `
+                            <tr>
+                                <td>${a.name}</td>
+                                <td>${a.geo}</td>
+                                <td>${a.platform}</td>
+                                <td>${a.gender}</td>
+                                <td>₹${a.budget.toLocaleString()}</td>
+                            </tr>
+                        `).join("")}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- AI Analysis -->
+            <div class="analysis-section">
+                <button class="analyze-btn" onclick="runAnalysis('${camp.campaign_id}', ${idx})" id="btn-${idx}">
+                    🤖 Run Root Cause Analysis
+                </button>
+                <div id="analysis-${idx}"></div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+function renderAnomaly(a) {
+    const pct = a.baseline_mean !== 0 ? ((a.test_value - a.baseline_mean) / a.baseline_mean * 100) : 0;
+    const pctClass = pct > 0 ? "up" : "down";
+    const pctSign = pct > 0 ? "+" : "";
+
+    return `
+    <div class="anomaly-item ${a.severity}">
+        <div class="anomaly-metric ${a.severity}">${a.metric.replace(/_/g, " ")}</div>
+        <div class="anomaly-row"><span>Today</span><span>${a.test_value}</span></div>
+        <div class="anomaly-row"><span>14d avg</span><span>${a.baseline_mean} ± ${a.baseline_std}</span></div>
+        <div class="anomaly-row">
+            <span>Z-score</span>
+            <span class="z-score ${a.severity}">${a.z_score}</span>
+        </div>
+        <div class="anomaly-row">
+            <span>Change</span>
+            <span class="pct-change ${pctClass}">${pctSign}${pct.toFixed(1)}%</span>
+        </div>
+        <div class="anomaly-row"><span>Direction</span><span>${a.direction} (${a.severity})</span></div>
+    </div>
+    `;
+}
+
+function renderTrend(metric, values) {
+    if (!values || values.length === 0) return "";
+    return `
+    <div class="trend-row">
+        <span class="trend-label">${metric}</span>
+        <div class="trend-values">
+            ${values.map((v, i) => `
+                ${i > 0 ? '<span class="trend-arrow">→</span>' : ""}
+                <span class="trend-dot ${i === values.length - 1 ? 'current' : ''}">${v.value !== null ? v.value : "—"}</span>
+            `).join("")}
+        </div>
+    </div>
+    `;
+}
+
+function renderCross(metric, check) {
+    if (!check || check.market_pct_change === null) return "";
+
+    const diagnosisLabels = {
+        "market_wide": "Market-wide",
+        "campaign_specific": "Campaign-specific",
+        "campaign_specific_with_market_pressure": "Campaign-specific (with market pressure)",
+        "unknown": "Unknown"
+    };
+
+    const diagnosisClass = check.diagnosis === "market_wide" ? "market-wide" : "isolated";
+    const label = diagnosisLabels[check.diagnosis] || check.diagnosis;
+
+    return `
+    <div class="cross-row">
+        <span class="cross-label">${metric}</span>
+        <span>Campaign: ${check.campaign_pct_change > 0 ? "+" : ""}${check.campaign_pct_change}% vs Segment: ${check.market_pct_change > 0 ? "+" : ""}${check.market_pct_change}%</span>
+        <span class="cross-indicator ${diagnosisClass}">${label}</span>
+        <span style="font-size:10px;color:var(--text-muted)">${check.match_level} (${check.num_comparison_campaigns} campaigns)</span>
+    </div>
+    `;
+}
+
+// ── Interactions ───────────────────────────────────────
+function toggleCard(idx) {
+    document.getElementById(`card-${idx}`).classList.toggle("expanded");
+}
+
+async function runAnalysis(campaignId, idx) {
+    const btn = document.getElementById(`btn-${idx}`);
+    const container = document.getElementById(`analysis-${idx}`);
+
+    btn.disabled = true;
+    btn.textContent = "🔄 Analyzing...";
+    container.innerHTML = '<div class="loading"><div class="spinner"></div>Claude is analyzing root causes...</div>';
+
+    try {
+        const res = await fetch(`${API}/api/analyze?date=${currentDate}&campaign_id=${campaignId}`);
+        const data = await res.json();
+        container.innerHTML = `<div class="analysis-content">${formatAnalysis(data.analysis)}</div>`;
+        btn.textContent = "✅ Analysis Complete";
+    } catch (err) {
+        container.innerHTML = `<div class="analysis-content" style="border-color:var(--accent-red-border)">Error: ${err.message}</div>`;
+        btn.disabled = false;
+        btn.textContent = "🤖 Retry Analysis";
+    }
+}
+
+function formatAnalysis(text) {
+    return text
+        .replace(/## (.*)/g, '<h2 style="color:var(--accent-blue);font-size:14px;margin:16px 0 8px;font-weight:700;">$1</h2>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+}
+
+// ── Start ──────────────────────────────────────────────
+init();
+</script>
+
+</body>
+</html>
