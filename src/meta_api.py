@@ -8,7 +8,6 @@ Rate limit safe: uses 2-3 API calls per fetch (well under 200/hr limit).
 """
 
 import os
-import time
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -57,6 +56,21 @@ def extract_action(actions, action_type):
     return None
 
 
+def extract_result_field(field_data):
+    """
+    Meta returns results and cost_per_result as nested structures:
+    [{'indicator': 'actions:xxx', 'values': [{'value': '28'}]}]
+
+    This extracts the numeric value.
+    """
+    if not field_data or not isinstance(field_data, list):
+        return None
+    try:
+        return float(field_data[0]["values"][0]["value"])
+    except (IndexError, KeyError, TypeError, ValueError):
+        return None
+
+
 def fetch_insights(date_start: str, date_end: str) -> list:
     """
     Fetch daily campaign-level insights from Meta API.
@@ -90,6 +104,8 @@ def fetch_insights(date_start: str, date_end: str) -> list:
                 "actions",
                 "action_values",
                 "cost_per_action_type",
+                "cost_per_result",
+                "results",
             ],
             params={
                 "level": "campaign",
@@ -118,6 +134,18 @@ def fetch_insights(date_start: str, date_end: str) -> list:
 
         spend = float(data.get("spend", 0) or 0)
         impressions = float(data.get("impressions", 0) or 0)
+
+        # ── Results and cost_per_result — Meta's native values ─
+        results = extract_result_field(data.get("results"))
+        cost_per_result = extract_result_field(data.get("cost_per_result"))
+
+        # Extract result type from the indicator field
+        result_type = None
+        if data.get("results") and isinstance(data["results"], list):
+            try:
+                result_type = data["results"][0].get("indicator", "")
+            except (IndexError, KeyError):
+                pass
 
         # ── Extract actions ────────────────────────────────────
         # App installs — try multiple action type names
@@ -182,21 +210,13 @@ def fetch_insights(date_start: str, date_end: str) -> list:
         if purchase_value and spend > 0:
             purchase_roas = purchase_value / spend
 
-        # Results field — use the most relevant action based on objective
-        results = app_installs or registrations or purchases
-
-        # Cost per result
-        cost_per_result = None
-        if results and spend > 0:
-            cost_per_result = spend / results
-
         # ── Build row matching DB schema ───────────────────────
         row = {
             "campaign_name": data.get("campaign_name"),
             "campaign_id": data.get("campaign_id"),
             "day": data.get("date_start"),
             "delivery_status": "active",
-            "result_type": None,
+            "result_type": result_type,
             "results": results,
             "reach": float(data.get("reach", 0) or 0) or None,
             "frequency": float(data.get("frequency", 0) or 0) or None,
