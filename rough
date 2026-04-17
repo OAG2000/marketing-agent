@@ -1,15 +1,15 @@
-python -m src.meta_api
+# python -m src.meta_api
 
-import pandas as pd                
-from src.schema import get_connection
-conn = get_connection()
-df = pd.read_sql_query('SELECT * FROM daily_metrics ORDER BY day, campaign_name', conn)
-conn.close()
-df.to_csv('data/all_metrics.csv', index=False)
-print(f'Exported {len(df)} rows, dates: {df[\"day\"].min()} to {df[\"day\"].max()}')
-"
+# import pandas as pd                
+# from src.schema import get_connection
+# conn = get_connection()
+# df = pd.read_sql_query('SELECT * FROM daily_metrics ORDER BY day, campaign_name', conn)
+# conn.close()
+# df.to_csv('data/all_metrics.csv', index=False)
+# print(f'Exported {len(df)} rows, dates: {df[\"day\"].min()} to {df[\"day\"].max()}')
+# "
 
 
-git add -A
-git commit -m "Updated till 13 Apr"
-git push origin main
+# git add -A
+# git commit -m "Updated till 13 Apr"
+# git push origin main
